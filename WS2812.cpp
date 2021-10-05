@@ -1,6 +1,22 @@
 /************************************
     Ws2812  rgb serial led driver
 
+    Copyright 20201 Pierre HENRY net23@frdev.com
+
+    Ws2812 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Ws2812 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with betaEvents.  If not, see <https://www.gnu.org/licenses/lglp.txt>.
+
+
     A reset is issued as early as at 9 µs???, contrary to the 50 µs mentioned in the data sheet. Longer delays between transmissions should be avoided.
     On tested componant 50µs reset is a mandatory
     The cycle time of a bit should be at least 1.25 µs, the value given in the data sheet, and at most ~50 µs, the shortest time for a reset.
@@ -36,7 +52,6 @@ void WS2812_HIGH() {
 
 void  WS2812rvb_t::reset() {
   interrupts();
-  pinMode(PIN_WS2812, OUTPUT);
   WS2812_LOW();
   //delayMicroseconds(10);
 }
@@ -48,44 +63,22 @@ void  WS2812rvb_t::reset() {
 
 //timing for nano
 void WS2812rvb_t::shift( uint8_t shift) {
-  static uint8_t delay1 = 0;
-  static uint16_t delay2 = 0;
+  static uint16_t delay1 = 0;
 
   for (byte n = 8; n > 0; n--, shift = shift << 1) {
     if (shift & 0x80)  {
       WS2812_HIGH();  //0,3µs
-      delay2++;       //0,65µs
+      delay1++;       //0,65µs
       WS2812_LOW();
     } else {
       WS2812_HIGH();  //0,3µs
       WS2812_LOW();
-      delay2++;
+      delay1++;
     }
-    //delay1++;
   }
 
 }
 
-
-
-
-// TIMING FOR TINY
-//static uint8_t delay1 = 0;
-//void WS2812rvb_t::shift( uint8_t shift) {
-//
-//  for (byte n = 8; n > 0; n--, shift = shift << 1) {
-//    if (shift & 0x80)  {
-//      WS2812_HIGH();  //0,3µs
-//      delay1++;       //0,7µs
-//      WS2812_LOW();
-//    } else {
-//      WS2812_HIGH();  //0,3µs
-//      WS2812_LOW();
-//      delay1++;
-//    }
-//    //delay1++;
-//  }
-//}
 
 void  WS2812rvb_t::write() {
   noInterrupts();

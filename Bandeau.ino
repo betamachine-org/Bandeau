@@ -3,14 +3,14 @@
 
     Gestion d'un bandeau WS2812 simplifié
 
-    Copyright 20201 Pierre HENRY net23@frdev.com 
+    Copyright 20201 Pierre HENRY net23@frdev.com
 
-    BetaPorteV2 is free software: you can redistribute it and/or modify
+    Bandeau is free software: you can redistribute it and/or modify
     it under the terms of the GNU Lesser General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    BetaPorteV2 is distributed in the hope that it will be useful,
+    Bandeau is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
@@ -33,7 +33,7 @@ uint8_t div10Hz = 10;
 uint8_t div1Hz = 10;
 uint8_t divAnime = 250;
 
-const uint8_t ledsMAX = 9;
+const uint8_t ledsMAX = 10;
 WS2812rvb_t leds[ledsMAX];
 
 uint8_t delayModeOff = 5;
@@ -44,6 +44,7 @@ void setup() {
   // initialize digital pin LED_BUILTIN as an output.
   pinMode(LED_LIFE, OUTPUT);
   pinMode(pinBP0, INPUT_PULLUP);
+  pinMode(PIN_WS2812, OUTPUT);
   for (uint8_t N = 0; N < ledsMAX; N++) {
     leds[N].setcolor(rvb_white, 80, 1000, 1000);
   }
@@ -56,8 +57,8 @@ bool bp0Stat = false;
 
 // the loop function runs over and over again forever
 void loop() {
-  
-  // detection de 10milliseconde pour btenir du 100Hz 
+
+  // detection de 10milliseconde pour btenir du 100Hz
   uint16_t delta = millis() - milli1;
   if (  delta >= 10 ) {
     milli1 += 10;
@@ -81,11 +82,11 @@ void loop() {
         ledLifeStat = !ledLifeStat;
         digitalWrite(LED_LIFE, ledLifeStat);   // turn the LED on (HIGH is the voltage level)
 
-        if (delayModeOff) {
-          if (--delayModeOff == 0) {
-            displayMode = modeOff;
-          }
-        }
+        //        if (delayModeOff) {
+        //          if (--delayModeOff == 0) {
+        //            displayMode = modeOff;
+        //          }
+        //        }
 
 
       }  // 1Hz
@@ -105,10 +106,10 @@ void loop() {
             leds[displayStep].setcolor(rvb_lightblue, 100, 1000, 1000);
             break;
           case modeGood:
-            leds[displayStep].setcolor(rvb_green, 80,  400, 400);
+            leds[displayStep].setcolor(rvb_green, 80, 3000, 10);
             break;
           case modeBad:
-            leds[displayStep].setcolor(rvb_orange, 80, 1400, 1400);
+            leds[displayStep].setcolor(rvb_orange, 80, 10, 4000);
             break;
         }
       }
@@ -137,25 +138,29 @@ void jobPoussoir() {
 
 // 110 HZ
 void jobRefreshLeds(const uint8_t delta) {
-  leds[0].write();
-  leds[1].write();
-  leds[2].write();
-  leds[3].write();
-  leds[4].write();
-  leds[5].write();
-  leds[6].write();
-  leds[7].write();
-  leds[8].write();
+  for (uint8_t N = 0; N < ledsMAX; N++) {
+    leds[N].write();
+  }
+  //  leds[1].write();
+  //  leds[2].write();
+  //  leds[3].write();
+  //  leds[4].write();
+  //  leds[5].write();
+  //  leds[6].write();
+  //  leds[7].write();
+  //  leds[8].write();
   leds[0].reset(); // obligatoire
 
-  leds[0].anime(delta);
-  leds[1].anime(delta);
-  leds[2].anime(delta);
-  leds[3].anime(delta);
-  leds[4].anime(delta);
-  leds[5].anime(delta);
-  leds[6].anime(delta);
-  leds[7].anime(delta);
-  leds[8].anime(delta);
+  for (uint8_t N = 0; N < ledsMAX; N++) {
+    leds[N].anime(delta);
+  }
+  //  leds[1].anime(delta);
+  //  leds[2].anime(delta);
+  //  leds[3].anime(delta);
+  //  leds[4].anime(delta);
+  //  leds[5].anime(delta);
+  //  leds[6].anime(delta);
+  //  leds[7].anime(delta);
+  //  leds[8].anime(delta);
 
 }
