@@ -1,27 +1,27 @@
 /*
   Bandeau
 
-    Gestion d'un bandeau WS2812 simplifié
+   Gestion d'un bandeau WS2812 simplifié
 
-    Copyright 20201 Pierre HENRY net23@frdev.com
+   Copyright 20201 Pierre HENRY net23@frdev.com
 
-    Bandeau is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+   Bandeau is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
 
-    Bandeau is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+   Bandeau is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public License
-    along with betaEvents.  If not, see <https://www.gnu.org/licenses/lglp.txt>.
+   You should have received a copy of the GNU Lesser General Public License
+   along with betaEvents.  If not, see <https://www.gnu.org/licenses/lglp.txt>.
 
 
   History
-    V1.0 (30/10/2021)
-    - Full rebuild from Triangle et TinyTriangle  01/2021 net234
+   V1.0 (30/10/2021)
+   - Full rebuild from Triangle et TinyTriangle  01/2021 net234
 
 *************************************************/
 
@@ -33,8 +33,8 @@ uint8_t div10Hz = 10;
 uint8_t div1Hz = 10;
 uint8_t divAnime = 250;
 
-const uint8_t ledsMAX = 10;
-WS2812rvb_t leds[ledsMAX];
+const uint8_t ledsMAX = 16;
+WS2812rvb_t leds[ledsMAX+1];
 
 uint8_t delayModeOff = 5;
 enum mode_t { modeOff, modeSearch, modeGood, modeBad}  displayMode = modeSearch;
@@ -91,32 +91,35 @@ void loop() {
 
       }  // 1Hz
     } // 10Hz
+ 
 
-    // annimation toute les 25 millisec
-    if (--divAnime == 0) {
-      divAnime = 25;
+  // annimation toute les 25 millisec
+  if (--divAnime == 0) {
+    divAnime = 20;
 
-      // animation
-      if (displayStep < ledsMAX) {
-        switch (displayMode) {
-          case modeOff:
-            leds[displayStep].setcolor(rvb_black, 50);
-            break;
-          case modeSearch:
-            leds[displayStep].setcolor(rvb_lightblue, 100, 1000, 1000);
-            break;
-          case modeGood:
-            leds[displayStep].setcolor(rvb_green, 80, 3000, 10);
-            break;
-          case modeBad:
-            leds[displayStep].setcolor(rvb_orange, 80, 10, 4000);
-            break;
-        }
+    // animation
+    if (displayStep < ledsMAX) {
+      switch (displayMode) {
+        case modeOff:
+          leds[displayStep].setcolor(rvb_black, 50);
+          break;
+        case modeGood:
+        leds[displayStep].setcolor(rvb_red, 80, 1000, 100);
+          break;
+        case modeBad:
+         leds[displayStep].setcolor(rvb_blue, 80, 1000, 100);
+         break;
+        case modeSearch:
+           int couleur = (displayStep % 3) + rvb_blouge1;
+         leds[displayStep].setcolor(couleur, 80, 1000, 100);
+           break;
       }
-      displayStep = (displayStep + 1) % (ledsMAX + 6);
-
     }
+    displayStep = (displayStep + 1) % (ledsMAX);
+
   }
+ } // 100Hz
+
   //delay(1);
 }
 
@@ -138,7 +141,10 @@ void jobPoussoir() {
 
 // 110 HZ
 void jobRefreshLeds(const uint8_t delta) {
-  for (uint8_t N = 0; N < ledsMAX; N++) {
+  for (int8_t N = 0; N < ledsMAX; N++) {
+    leds[N].write();
+  }
+  for (int8_t N = ledsMAX - 1; N > 0; N--) {
     leds[N].write();
   }
   //  leds[1].write();

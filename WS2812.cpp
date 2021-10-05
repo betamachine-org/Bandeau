@@ -115,7 +115,10 @@ void  rvbLed::anime(const uint8_t delta) {
     } else {
       incDelay = 0;
     }
-    uint16_t curLevel = (uint16_t)maxLevel - ( (uint32_t)maxLevel * incDelay / baseIncDelay );
+    // increment
+    //uint16_t curLevel = (uint16_t)maxLevel - ( (uint32_t)maxLevel * incDelay / baseIncDelay );
+    // decrem
+    uint8_t curLevel = (uint32_t)maxLevel * decDelay / baseDecDelay;
     this->red =   (uint16_t)map_color[color].red * curLevel / 100;
     this->green = (uint16_t)map_color[color].green * curLevel / 100;
     this->blue =  (uint16_t)map_color[color].blue * curLevel / 100;
@@ -128,7 +131,10 @@ void  rvbLed::anime(const uint8_t delta) {
     } else {
       decDelay = 0;
     }
-    uint8_t curLevel = (uint32_t)maxLevel * decDelay / baseDecDelay;
+    // increment
+    uint16_t curLevel = (uint16_t)maxLevel - ( (uint32_t)maxLevel * incDelay / baseIncDelay );
+    // decrem
+    //uint8_t curLevel = (uint32_t)maxLevel * decDelay / baseDecDelay;
     this->red =   (uint16_t)map_color[color].red * curLevel / 100;
     this->green = (uint16_t)map_color[color].green * curLevel / 100;
     this->blue =  (uint16_t)map_color[color].blue * curLevel / 100;

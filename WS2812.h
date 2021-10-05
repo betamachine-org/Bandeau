@@ -27,7 +27,7 @@
 
 //#define PIN_WS2812 D2
 
-enum e_rvb { rvb_white, rvb_red, rvb_green, rvb_blue, rvb_yellow, rvb_pink, rvb_brown, rvb_orange, rvb_lightblue, rvb_lightgreen, rvb_black, MAX_e_rvb };
+enum e_rvb { rvb_white, rvb_red, rvb_green, rvb_blue, rvb_yellow, rvb_pink, rvb_brown, rvb_orange, rvb_lightblue, rvb_lightgreen, rvb_blouge1, rvb_blouge2, rvb_blouge3, rvb_black, MAX_e_rvb };
 
 
 
@@ -44,10 +44,10 @@ struct  rvbLed: rvb_t {
   int16_t baseDecDelay;
   int16_t baseIncDelay;
   uint8_t maxLevel;
-//  uint8_t red;
-//  uint8_t green;
-//  uint8_t blue;
-//  uint8_t level;
+  //  uint8_t red;
+  //  uint8_t green;
+  //  uint8_t blue;
+  //  uint8_t level;
   uint8_t color;
   void  setcolor(const e_rvb color, const uint8_t level, const uint16_t increase = 0, const uint16_t decrease = 0);
   void  anime(const uint8_t delta);
@@ -64,8 +64,13 @@ const rvb_t map_color[MAX_e_rvb] = {
   {200,  50,   0}, // rvb_orange
   { 50,  50, 200}, // rvb_lightblue
   { 50, 200,  50}, // rvb_lightgreen
-  {  0,   0,   0}   // rvb_black
-  };
+  { 100, 0 , 155 }, // rvb_blouge1
+  { 70, 0 , 185 }, // rvb_blouge2
+  { 50, 0 , 205 }, // rvb_blouge3
+
+  {  0,   0,   0},   // rvb_black
+
+};
 
 
 struct WS2812rvb_t : rvbLed {
