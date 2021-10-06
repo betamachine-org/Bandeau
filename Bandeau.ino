@@ -37,8 +37,11 @@ const uint8_t ledsMAX = 16;
 WS2812rvb_t leds[ledsMAX+1];
 
 uint8_t delayModeOff = 5;
-enum mode_t { modeOff, modeSearch, modeGood, modeBad}  displayMode = modeSearch;
+enum mode_t { modeOff, modeSearch, modeGood, modeBad, MAXmode}  displayMode = modeSearch;
 uint8_t displayStep = 0;
+
+#include <EEPROM.h>
+
 
 void setup() {
   // initialize digital pin LED_BUILTIN as an output.
@@ -48,7 +51,15 @@ void setup() {
   for (uint8_t N = 0; N < ledsMAX; N++) {
     leds[N].setcolor(rvb_white, 80, 1000, 1000);
   }
+
+  // lecture de  l'EEPROM pour le choix de l'animation
+  // check if a stored value
+  if (EEPROM.read(1)== 'B' && EEPROM.read(2) == 'e') ;
+  displayMode = EEPROM.read(2);
+  if (displayMode >= 
 }
+
+
 
 
 uint32_t milli1 = millis();  // heure du dernier 100Hz obtenus
