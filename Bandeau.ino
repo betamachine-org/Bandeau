@@ -33,11 +33,15 @@ uint8_t div10Hz = 10;
 uint8_t div1Hz = 10;
 uint8_t divAnime = 250;
 
-const uint8_t ledsMAX = 16;
-WS2812rvb_t leds[ledsMAX+1];
+// varibale modifiables
+const uint8_t  ledsMAX = 16;  // nombre de led sur le bandeau
+const uint16_t autoOffDelay = 5;   // delais d'auto extinction en secondes (0 = pas d'autoextinction)
+// varibale modifiables (fin)
 
-uint8_t delayModeOff = 5;
-enum mode_t { modeOff, modeSearch, modeGood, modeBad, MAXmode}  displayMode = modeSearch;
+WS2812rvb_t leds[ledsMAX + 1];
+
+uint16_t delayModeOff = autoOffDelay;   
+enum mode_t { modeOff, modeUn, modeDeux, modeTrois, MAXmode}  displayMode = modeUn;
 uint8_t displayStep = 0;
 
 #include <EEPROM.h>
@@ -54,12 +58,12 @@ void setup() {
 
   // lecture de  l'EEPROM pour le choix de l'animation
   // check if a stored value
-  if (EEPROM.read(1)== 'B' && EEPROM.read(2) == 'e') ;
+  if (EEPROM.read(1) == 'B' && EEPROM.read(2) == 'e') ;
   displayMode = EEPROM.read(2);
-  if (displayMode >= 
+  if (displayMode >= MAXmode ) displayMode = modeUn;
+  EEPROM.write(1, 'B');
+  EEPROM.write(2, displayMode);
 }
-
-
 
 
 uint32_t milli1 = millis();  // heure du dernier 100Hz obtenus
@@ -93,43 +97,43 @@ void loop() {
         ledLifeStat = !ledLifeStat;
         digitalWrite(LED_LIFE, ledLifeStat);   // turn the LED on (HIGH is the voltage level)
 
-        //        if (delayModeOff) {
-        //          if (--delayModeOff == 0) {
-        //            displayMode = modeOff;
-        //          }
-        //        }
+        if (delayModeOff) {
+          if (--delayModeOff == 0) {
+            displayMode = modeOff;
+          }
+        }
 
 
       }  // 1Hz
     } // 10Hz
- 
 
-  // annimation toute les 25 millisec
-  if (--divAnime == 0) {
-    divAnime = 20;
 
-    // animation
-    if (displayStep < ledsMAX) {
-      switch (displayMode) {
-        case modeOff:
-          leds[displayStep].setcolor(rvb_black, 50);
-          break;
-        case modeGood:
-        leds[displayStep].setcolor(rvb_red, 80, 1000, 100);
-          break;
-        case modeBad:
-         leds[displayStep].setcolor(rvb_blue, 80, 1000, 100);
-         break;
-        case modeSearch:
-           int couleur = (displayStep % 3) + rvb_blouge1;
-         leds[displayStep].setcolor(couleur, 80, 1000, 100);
-           break;
+    // annimation toute les 25 millisec
+    if (--divAnime == 0) {
+      divAnime = 20;
+
+      // animation
+      if (displayStep < ledsMAX) {
+        switch (displayMode) {
+          case modeOff:
+            leds[displayStep].setcolor(rvb_black, 50);
+            break;
+          case modeUn:
+            leds[displayStep].setcolor(rvb_red, 80, 1000, 100);
+            break;
+          case modeDeux:
+            leds[displayStep].setcolor(rvb_blue, 80, 1000, 100);
+            break;
+          case modeTrois:
+            int couleur = (displayStep % 3) + rvb_blouge1;
+            leds[displayStep].setcolor(couleur, 80, 1000, 100);
+            break;
+        }
       }
-    }
-    displayStep = (displayStep + 1) % (ledsMAX);
+      displayStep = (displayStep + 1) % (ledsMAX);
 
-  }
- } // 100Hz
+    }
+  } // 100Hz
 
   //delay(1);
 }
@@ -141,7 +145,7 @@ void jobPoussoir() {
     bp0Stat = !bp0Stat;
     if (bp0Stat) {
       displayMode = (mode_t)( (displayMode + 1) % 4 );
-      delayModeOff = 30;
+      delayModeOff = autoOffDelay;
       displayStep = 0;
     }
 
@@ -155,29 +159,14 @@ void jobRefreshLeds(const uint8_t delta) {
   for (int8_t N = 0; N < ledsMAX; N++) {
     leds[N].write();
   }
-  for (int8_t N = ledsMAX - 1; N > 0; N--) {
-    leds[N].write();
-  }
-  //  leds[1].write();
-  //  leds[2].write();
-  //  leds[3].write();
-  //  leds[4].write();
-  //  leds[5].write();
-  //  leds[6].write();
-  //  leds[7].write();
-  //  leds[8].write();
+//  option mode mirroir  
+//  for (int8_t N = ledsMAX - 1; N > 0; N--) {
+//    leds[N].write();
+//  }
   leds[0].reset(); // obligatoire
 
   for (uint8_t N = 0; N < ledsMAX; N++) {
     leds[N].anime(delta);
   }
-  //  leds[1].anime(delta);
-  //  leds[2].anime(delta);
-  //  leds[3].anime(delta);
-  //  leds[4].anime(delta);
-  //  leds[5].anime(delta);
-  //  leds[6].anime(delta);
-  //  leds[7].anime(delta);
-  //  leds[8].anime(delta);
 
 }

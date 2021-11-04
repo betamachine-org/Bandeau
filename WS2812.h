@@ -44,10 +44,6 @@ struct  rvbLed: rvb_t {
   int16_t baseDecDelay;
   int16_t baseIncDelay;
   uint8_t maxLevel;
-  //  uint8_t red;
-  //  uint8_t green;
-  //  uint8_t blue;
-  //  uint8_t level;
   uint8_t color;
   void  setcolor(const e_rvb color, const uint8_t level, const uint16_t increase = 0, const uint16_t decrease = 0);
   void  anime(const uint8_t delta);
@@ -67,9 +63,7 @@ const rvb_t map_color[MAX_e_rvb] = {
   { 100, 0 , 155 }, // rvb_blouge1
   { 70, 0 , 185 }, // rvb_blouge2
   { 50, 0 , 205 }, // rvb_blouge3
-
   {  0,   0,   0},   // rvb_black
-
 };
 
 
