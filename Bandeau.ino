@@ -31,24 +31,27 @@
 
 uint8_t div10Hz = 10;
 uint8_t div1Hz = 10;
-uint8_t divAnime = 250;
+uint16_t divAnime = 250;
 
 // varibale modifiables
-const uint8_t  ledsMAX = 16;  // nombre de led sur le bandeau
-const uint16_t autoOffDelay = 5;   // delais d'auto extinction en secondes (0 = pas d'autoextinction)
+const uint8_t  ledsMAX = 3;  // nombre de led sur le bandeau
+const uint16_t autoOffDelay = 60;   // delais d'auto extinction en secondes (0 = pas d'autoextinction)
 // varibale modifiables (fin)
 
 WS2812rvb_t leds[ledsMAX + 1];
 
-uint16_t delayModeOff = autoOffDelay;   
+uint16_t delayModeOff = autoOffDelay;
 enum mode_t { modeOff, modeUn, modeDeux, modeTrois, MAXmode}  displayMode = modeUn;
 uint8_t displayStep = 0;
+uint8_t delayMemo = 0;
 
 #include <EEPROM.h>
 
 
 void setup() {
   // initialize digital pin LED_BUILTIN as an output.
+  Serial.begin(115200);
+  Serial.println("Bonjour");
   pinMode(LED_LIFE, OUTPUT);
   pinMode(pinBP0, INPUT_PULLUP);
   pinMode(PIN_WS2812, OUTPUT);
@@ -58,13 +61,16 @@ void setup() {
 
   // lecture de  l'EEPROM pour le choix de l'animation
   // check if a stored value
-  if (EEPROM.read(1) == 'B' && EEPROM.read(2) == 'e') ;
-  displayMode = EEPROM.read(2);
-  if (displayMode >= MAXmode ) displayMode = modeUn;
-  EEPROM.write(1, 'B');
-  EEPROM.write(2, displayMode);
-}
+  if (EEPROM.read(1) == 'B') {
+    displayMode = (mode_t)EEPROM.read(2);
+    Serial.print("Saved Anime ");
+    Serial.println(displayMode);
 
+    if (displayMode >= MAXmode ) displayMode = modeUn;
+    EEPROM.write(1, 'B');
+    EEPROM.write(2, displayMode);
+  }
+}
 
 uint32_t milli1 = millis();  // heure du dernier 100Hz obtenus
 bool ledLifeStat = true;
@@ -102,15 +108,23 @@ void loop() {
             displayMode = modeOff;
           }
         }
-
+        if (delayMemo) {
+          delayMemo--;
+          if (delayMemo == 0) {
+            EEPROM.update(1, 'B');
+            EEPROM.update(2, displayMode);
+            Serial.print("Save Anime ");
+            Serial.println(displayMode);
+          }
+        }
 
       }  // 1Hz
     } // 10Hz
 
 
-    // annimation toute les 25 millisec
+    // annimation toute
     if (--divAnime == 0) {
-      divAnime = 20;
+      divAnime = 200;  // change de led chaque divanime centime de sec
 
       // animation
       if (displayStep < ledsMAX) {
@@ -119,14 +133,22 @@ void loop() {
             leds[displayStep].setcolor(rvb_black, 50);
             break;
           case modeUn:
-            leds[displayStep].setcolor(rvb_red, 80, 1000, 100);
+            if (displayStep == 0) {
+              leds[displayStep].setcolor(rvb_red, 80, 2000, 2000);
+            }
+            if (displayStep == 1) {
+              leds[displayStep].setcolor(rvb_blue, 80, 2000, 2000);
+            }
+            if (displayStep == 2) {
+              leds[displayStep].setcolor(rvb_yellow, 80, 2000, 2000);
+            }
             break;
           case modeDeux:
-            leds[displayStep].setcolor(rvb_blue, 80, 1000, 100);
+            leds[displayStep].setcolor(rvb_blue, 80, 1000, 1000);
             break;
           case modeTrois:
             int couleur = (displayStep % 3) + rvb_blouge1;
-            leds[displayStep].setcolor(couleur, 80, 1000, 100);
+            leds[displayStep].setcolor((e_rvb)couleur, 80, 1000, 1000);
             break;
         }
       }
@@ -144,9 +166,13 @@ void jobPoussoir() {
   if ( (digitalRead(pinBP0) == LOW) != bp0Stat ) {
     bp0Stat = !bp0Stat;
     if (bp0Stat) {
+      delayMemo = 5;
+      Serial.print("delay memo");
+    } else {
       displayMode = (mode_t)( (displayMode + 1) % 4 );
       delayModeOff = autoOffDelay;
       displayStep = 0;
+      delayMemo = 0;
     }
 
 
@@ -159,10 +185,10 @@ void jobRefreshLeds(const uint8_t delta) {
   for (int8_t N = 0; N < ledsMAX; N++) {
     leds[N].write();
   }
-//  option mode mirroir  
-//  for (int8_t N = ledsMAX - 1; N > 0; N--) {
-//    leds[N].write();
-//  }
+  //  option mode mirroir
+  //  for (int8_t N = ledsMAX - 1; N > 0; N--) {
+  //    leds[N].write();
+  //  }
   leds[0].reset(); // obligatoire
 
   for (uint8_t N = 0; N < ledsMAX; N++) {
