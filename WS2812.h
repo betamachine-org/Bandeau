@@ -16,14 +16,17 @@
     You should have received a copy of the GNU Lesser General Public License
     along with betaEvents.  If not, see <https://www.gnu.org/licenses/lglp.txt>.
 
-
-
+   V1.1 (05/11/2021)
+   - Adjust for RVBW
 
 */
 
 #pragma once
 #include <Arduino.h>
 #include "Nano.h"
+
+// #define USE_RVBW   Si les led sont des WS2812W
+
 
 //#define PIN_WS2812 D2
 
@@ -47,6 +50,10 @@ struct  rvbLed: rvb_t {
   uint8_t color;
   void  setcolor(const e_rvb color, const uint8_t level, const uint16_t increase = 0, const uint16_t decrease = 0);
   void  anime(const uint8_t delta);
+#ifdef USE_RVBW
+  void adjustWhite();
+  uint8_t white;
+#endif
 };
 
 const rvb_t map_color[MAX_e_rvb] = {
@@ -60,10 +67,10 @@ const rvb_t map_color[MAX_e_rvb] = {
   {200,  50,   0}, // rvb_orange
   { 50,  50, 200}, // rvb_lightblue
   { 50, 200,  50}, // rvb_lightgreen
-  { 100, 0 , 155 }, // rvb_blouge1
+  { 100, 0 , 155 },// rvb_blouge1
   { 70, 0 , 185 }, // rvb_blouge2
   { 50, 0 , 205 }, // rvb_blouge3
-  {  0,   0,   0},   // rvb_black
+  {  0,   0,   0}, // rvb_black
 };
 
 

@@ -22,6 +22,8 @@
   History
    V1.0 (30/10/2021)
    - Full rebuild from Triangle et TinyTriangle  01/2021 net234
+   V1.1 (05/11/2021)
+   - Adjust for RVBW
 
 *************************************************/
 
@@ -180,7 +182,7 @@ void jobPoussoir() {
 }
 
 
-// 110 HZ
+// 100 HZ
 void jobRefreshLeds(const uint8_t delta) {
   for (int8_t N = 0; N < ledsMAX; N++) {
     leds[N].write();

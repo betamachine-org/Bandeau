@@ -26,6 +26,8 @@
 
     https://roboticsbackend.com/arduino-fast-digitalwrite/
 
+   V1.1 (05/11/2021)
+   - Adjust for RVBW
 
 
 */
@@ -80,32 +82,55 @@ void WS2812rvb_t::shift( uint8_t shift) {
 }
 
 
+
+
+
 void  WS2812rvb_t::write() {
   noInterrupts();
-  this->shift(this->green);
-  this->shift(this->red);
-  this->shift(this->blue);
+  shift(green);
+  shift(red);
+  shift(blue);
+#ifdef USE_RVBW
+  shift(white);
+#endif
+
 }
 
 
 
 void  rvbLed::setcolor( const e_rvb acolor, const uint8_t alevel, const uint16_t increase , const  uint16_t decrease )  {
-  //void  rvb_t::setcolor( e_rvb color,  uint8_t level,  uint16_t steady ,  uint16_t decrease );
-  this->maxLevel = alevel;
-  this->color = acolor;
-  this->red =   0;
-  this->green = 0;
-  this->blue =  0;
+  maxLevel = alevel;
+  color = acolor;
   if (increase == 0) {
-    this->red =   (uint16_t)map_color[this->color].red * alevel / 100;
-    this->green = (uint16_t)map_color[this->color].green * alevel / 100;
-    this->blue =  (uint16_t)map_color[this->color].blue * alevel / 100; 
+    red =   (uint16_t)map_color[color].red * alevel / 100;
+    green = (uint16_t)map_color[color].green * alevel / 100;
+    blue =  (uint16_t)map_color[color].blue * alevel / 100;
+  } else {
+    red =   0;
+    green = 0;
+    blue =  0;
+
   }
-  this->baseIncDelay = increase;
-  this->incDelay = increase;
-  this->baseDecDelay = decrease;
-  this->decDelay = decrease;
+#ifdef USE_RVBW
+  adjustWhite();
+#endif
+
+  baseIncDelay = increase;
+  incDelay = increase;
+  baseDecDelay = decrease;
+  decDelay = decrease;
 }
+
+#ifdef USE_RVBW
+void rvbLed::adjustWhite() {
+  white = red;
+  if (white > blue) white = blue;
+  if (white > green) white = green;
+  red -=  white;
+  green -=  white;
+  blue -=  white;
+}
+#endif
 
 
 void  rvbLed::anime(const uint8_t delta) {
@@ -117,11 +142,14 @@ void  rvbLed::anime(const uint8_t delta) {
     }
     // increment
     uint16_t curLevel = (uint16_t)maxLevel - ( (uint32_t)maxLevel * incDelay / baseIncDelay );
-//    Serial.print('I');
-//    Serial.println(curLevel);
-    this->red =   (uint16_t)map_color[color].red * curLevel / 100;
-    this->green = (uint16_t)map_color[color].green * curLevel / 100;
-    this->blue =  (uint16_t)map_color[color].blue * curLevel / 100;
+    //    Serial.print('I');
+    //    Serial.println(curLevel);
+    red =   (uint16_t)map_color[color].red * curLevel / 100;
+    green = (uint16_t)map_color[color].green * curLevel / 100;
+    blue =  (uint16_t)map_color[color].blue * curLevel / 100;
+#ifdef USE_RVBW
+    adjustWhite();
+#endif
     return;
   }
 
@@ -135,11 +163,13 @@ void  rvbLed::anime(const uint8_t delta) {
     uint16_t curLevel = (uint32_t)maxLevel * decDelay / baseDecDelay;
     //Serial.print('D');
     //Serial.println(curLevel);
-    // 
-    //uint8_t curLevel = (uint32_t)maxLevel * decDelay / baseDecDelay;
-    this->red =   (uint16_t)map_color[color].red * curLevel / 100;
-    this->green = (uint16_t)map_color[color].green * curLevel / 100;
-    this->blue =  (uint16_t)map_color[color].blue * curLevel / 100;
+    //
+    red =   (uint16_t)map_color[color].red * curLevel / 100;
+    green = (uint16_t)map_color[color].green * curLevel / 100;
+    blue =  (uint16_t)map_color[color].blue * curLevel / 100;
+#ifdef USE_RVBW
+    adjustWhite();
+#endif
     return;
   }
 }
